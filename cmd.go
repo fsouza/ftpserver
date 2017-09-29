@@ -37,8 +37,6 @@ var (
 		"CONF": commandConf{},
 		"DELE": commandDele{},
 		"ENC":  commandEnc{},
-		"EPRT": commandEprt{},
-		"EPSV": commandEpsv{},
 		"FEAT": commandFeat{},
 		"LIST": commandList{},
 		"NLST": commandNlst{},
