@@ -60,10 +60,11 @@ type ServerOpts struct {
 // Always use the NewServer() method to create a new Server.
 type Server struct {
 	*ServerOpts
-	listenTo  string
-	logger    Logger
-	listener  net.Listener
-	tlsConfig *tls.Config
+	listenTo     string
+	logger       Logger
+	listener     net.Listener
+	tlsConfig    *tls.Config
+	passivePorts *portRange
 }
 
 // serverOptsWithDefaults copies an ServerOpts struct into a new struct,
@@ -133,13 +134,18 @@ func serverOptsWithDefaults(opts *ServerOpts) *ServerOpts {
 //     }
 //     server  := server.NewServer(opts)
 //
-func NewServer(opts *ServerOpts) *Server {
+func NewServer(opts *ServerOpts) (*Server, error) {
 	opts = serverOptsWithDefaults(opts)
 	s := new(Server)
 	s.ServerOpts = opts
 	s.listenTo = net.JoinHostPort(opts.Hostname, strconv.Itoa(opts.Port))
 	s.logger = opts.Logger
-	return s
+	passivePorts, err := parseRange(opts.PassivePorts)
+	if err != nil {
+		return nil, err
+	}
+	s.passivePorts = passivePorts
+	return s, nil
 }
 
 // NewConn constructs a new object that will handle the FTP protocol over
