@@ -6,7 +6,13 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
+
+// passiveListenTimeout is for how long the service listens for connections
+// before automatically close. It's the maximum allowed interval between Listen
+// and Accept for passive connections.
+const passiveListenTimeout = time.Minute
 
 // A data socket is used to send non-control data between the client and
 // server.
@@ -167,10 +173,21 @@ func (socket *ftpPassiveSocket) GoListenAndServe(sessionID string) (err error) {
 	if socket.tlsConfing != nil {
 		listener = tls.NewListener(listener, socket.tlsConfing)
 	}
+	accepted := make(chan struct{})
+
+	go func() {
+		select {
+		case <-accepted:
+			return
+		case <-time.After(passiveListenTimeout):
+			listener.Close()
+		}
+	}()
 
 	go func() {
 		mutex.Lock()
 		defer mutex.Unlock()
+		defer close(accepted)
 
 		conn, err := listener.Accept()
 		defer socket.wg.Done()
