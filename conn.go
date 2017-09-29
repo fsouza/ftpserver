@@ -8,13 +8,10 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	mrand "math/rand"
 )
 
 const (

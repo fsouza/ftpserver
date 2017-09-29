@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type portRange struct {
 	start     int64
 	length    int64
 	lastDelta int64
+	mtx       sync.Mutex
 }
 
 func parseRange(r string) (*portRange, error) {
@@ -31,10 +33,12 @@ func parseRange(r string) (*portRange, error) {
 	return &portRange{start: start, length: end - start}, nil
 }
 
-func (r *portRange) next() int64 {
+func (r *portRange) next() int {
 	if r == nil {
 		return 0
 	}
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
 	r.lastDelta = (r.lastDelta + 1) % r.length
-	return r.start + r.lastDelta
+	return int(r.start + r.lastDelta)
 }
