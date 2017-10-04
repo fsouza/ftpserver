@@ -12,7 +12,7 @@ import (
 // passiveListenTimeout is for how long the service listens for connections
 // before automatically close. It's the maximum allowed interval between Listen
 // and Accept for passive connections.
-const passiveListenTimeout = time.Minute
+const passiveListenTimeout = 30 * time.Second
 
 // A data socket is used to send non-control data between the client and
 // server.
