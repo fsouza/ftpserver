@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 const (
@@ -162,7 +163,7 @@ func (conn *Conn) parseLine(line string) (string, string) {
 // writeMessage will send a standard FTP response back to the client.
 func (conn *Conn) writeMessage(code int, message string) (wrote int, err error) {
 	conn.logger.PrintResponse(conn.sessionID, code, message)
-	line := fmt.Sprintf("%d %s\r\n", code, message)
+	line := fmt.Sprintf("%d %s\r\n", code, strings.TrimRightFunc(message, unicode.IsSpace))
 	wrote, err = conn.controlWriter.WriteString(line)
 	conn.controlWriter.Flush()
 	return
